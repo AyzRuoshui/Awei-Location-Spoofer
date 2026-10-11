@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#1565C0</color>
+    <color name="primary_dark">#0D47A1</color>
+    <color name="accent">#FF6D00</color>
+    <color name="ic_launcher_background">#1565C0</color>
+
+    <!-- 语义状态色：体检符号/状态文字统一取用（暗色面板下按 WCAG 可读性选档，
+         此前散落的硬编码状态色逐步由此收敛，见各页引用） -->
+    <color name="state_ok">#4CAF50</color>
+    <color name="state_warn">#FFA726</color>
+    <color name="state_fail">#EF5350</color>
+    <color name="text_secondary">#9E9E9E</color>
+    <color name="text_primary">#E6E1E5</color>
+    <color name="primary_light">#64B5F6</color>
+
+    <!-- 日志控制台（暗色主题内的一致暗底，替代此前的浅色孤岛） -->
+    <color name="console_bg">#1E1E1E</color>
+    <color name="console_text">#D0D0D0</color>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 搜索面板底色：暗色主题下用暗面板（此前近白底+暗主题白字=白底白字不可见，U-01） -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#F2161616" />
+    <corners android:radius="10dp" />
+</shape>

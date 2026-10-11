@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="引擎状态"
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_engine_state"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:lineSpacingExtra="4dp"
+                    android:fontFamily="monospace"
+                    android:text="--" />
+
+                <Button
+                    android:id="@+id/btn_check_again"
+                    style="@style/AppBtnOutlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="重新检测" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="地图源"
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+
+                <RadioGroup
+                    android:id="@+id/rg_map_source"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+
+                    <RadioButton
+                        android:id="@+id/rb_map_gaode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="高德地图（国内快，推荐）" />
+
+                    <RadioButton
+                        android:id="@+id/rb_map_arcgis"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="ArcGIS 街道（无坐标偏移）" />
+
+                    <RadioButton
+                        android:id="@+id/rb_map_osm"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="OpenStreetMap（国内打不开）" />
+                </RadioGroup>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:text="说明：高德底图国内加载最快；其地图内容相对真实经纬度有数百米偏移（选点仍是所见即所得）。切换后回到地图页生效。" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="没有 Root 怎么办？"
+                    android:textStyle="bold"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="本 App 是满血版（Xposed Hook 注入），需要 Root + LSPosed。无法刷机的设备有两条路：\n\n1. 安装独立编译的「阿伟定位伪装·免Root版」：系统级模拟位置，无需刷机，防检测弱于满血版。\n\n2. 手机虚拟机（VMOS Pro / 光速虚拟机等）：虚拟机自带 root，可在其内安装本满血版并配 LSPosed 使用。\n\n注意：虚拟机自身存在环境特征，风控较强的 App 可能识别。效果权衡请自行评估。" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="真机刷机引导（满血 Hook）"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="1. 安装 Magisk + Zygisk + LSPosed（需解锁 Bootloader）\n2. LSPosed → 模块 → 启用「阿伟定位伪装·满血版」\n3. 作用域勾选需要伪装的目标 App（含地图/社交/打卡类）\n4. 如需伪造 GMS 融合定位，同时勾选 Google Play 服务\n5. 强制停止并重新打开目标 App 使 Hook 生效\n6. 回到本 App 启动模拟（Hook 配置由模拟服务下发）\n\n注意：Hook 只替换目标 App 内读取的位置；本 App 需保持在后台运行或使用前台服务。" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="关于"
+                    android:textStyle="bold"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/tv_about"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textSize="13sp"
+                    android:text="引擎架构:\n· Xposed Hook（满血）✅：定位/GMS/百度/GNSS/传感器/WiFi基站/反检测\n· 虚拟摄像头 ✅：本地视频/双机远程/网络直播流，Camera1/2/CameraX 注入+拍照\n· 免 Root 需求：另装独立「阿伟定位伪装·免Root版」（系统级模拟位置）\n\n体检与引导：状态页「体检与引导」卡片\n遇问题：状态页→运行日志→导出 txt 发微信\n\n仅用于开发调试与隐私保护，禁止用于违法用途。" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</ScrollView>

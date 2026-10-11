@@ -1,0 +1,34 @@
+# Gradle and Android build
+.gradle/
+build/
+**/build/
+local.properties
+keystore.properties
+*.keystore
+*.jks
+*.apk
+*.aab
+
+# IDE & Editor
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs & temp
+*.log
+_tmp/
+tmp/
+temp/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+.venv/
+env/
+venv/

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="引擎状态"
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_engine_state"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:lineSpacingExtra="4dp"
+                    android:fontFamily="monospace"
+                    android:text="--" />
+
+                <Button
+                    android:id="@+id/btn_open_dev"
+                    style="@style/AppBtnOutlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="打开开发者选项" />
+
+                <Button
+                    android:id="@+id/btn_check_again"
+                    style="@style/AppBtnOutlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="重新检测" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="地图源"
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+
+                <RadioGroup
+                    android:id="@+id/rg_map_source"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+
+                    <RadioButton
+                        android:id="@+id/rb_map_gaode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="高德地图（国内快，推荐）" />
+
+                    <RadioButton
+                        android:id="@+id/rb_map_arcgis"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="ArcGIS 街道（无坐标偏移）" />
+
+                    <RadioButton
+                        android:id="@+id/rb_map_osm"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="OpenStreetMap（国内打不开）" />
+                </RadioGroup>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:text="说明：高德底图国内加载最快；其地图内容相对真实经纬度有数百米偏移（选点仍是所见即所得）。切换后回到地图页生效。" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="其他说明"
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="手机虚拟机（VMOS Pro / 光速虚拟机等）内也可安装本 App 使用；注意虚拟机自身存在环境特征，风控较强的 App 可能识别。效果权衡请自行评估。" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="需要更强能力？"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="虚拟摄像头画面伪装、WiFi/基站伪装、更强防检测需要完整版「阿伟定位伪装·满血版」（基于 Root + LSPosed 满血模式，详见开源主工程 awei-spoofer）。" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="关于"
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_about"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textSize="13sp"
+                    android:text="免Root版功能:\n· 定位伪装 ✅（固定点/路线轨迹/变速步行跑步，gps/network/fused/passive 全覆盖）\n· 地名搜索 / 一键环线 / 手绘轨迹 ✅\n\n不含（需完整版 + LSPosed）：虚拟摄像头、WiFi/基站/传感器伪装\n逐项体检引导：状态页「运行与体检」\n遇问题：状态页→运行日志→导出 txt 发微信\n\n仅用于开发调试与隐私保护，禁止用于违法用途。" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</ScrollView>

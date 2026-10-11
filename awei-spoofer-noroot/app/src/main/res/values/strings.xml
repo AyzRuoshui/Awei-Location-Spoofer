@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">阿伟定位伪装·免Root版</string>
+    <string name="tab_status">状态</string>
+    <string name="tab_map">地图</string>
+    <string name="tab_track">轨迹</string>
+    <string name="tab_settings">设置</string>
+    <string name="start_mock">启动模拟</string>
+    <string name="stop_mock">停止模拟</string>
+    <string name="mock_running">模拟运行中</string>
+    <string name="mock_stopped">模拟未启动</string>
+    <string name="mode_fixed">固定位置</string>
+    <string name="mode_route">路线移动</string>
+    <string name="pick_point_hint">在地图页长按设置目标位置</string>
+    <string name="pick_route_hint">在地图页长按依次设置起点/终点</string>
+    <string name="speed_label">移动速度: %1$d km/h</string>
+    <string name="notification_channel">位置模拟服务</string>
+    <string name="notif_title">位置模拟运行中</string>
+    <string name="need_location_permission">需要定位权限用于注入模拟位置</string>
+</resources>

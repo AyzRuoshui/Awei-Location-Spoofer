@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 代码创建的可点击行/按钮通用水波纹：透明底 + 按压涟漪（minSdk 21 可用）。
+     涟漪用白色：仅用于暗色面板（搜索结果列表），浅色底上会太淡 -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#22FFFFFF">
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF" />
+        </shape>
+    </item>
+</ripple>

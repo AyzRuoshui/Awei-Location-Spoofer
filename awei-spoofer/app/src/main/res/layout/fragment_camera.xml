@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="虚拟摄像头"
+                    android:textStyle="bold"
+                    android:textSize="18sp" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/sw_cam"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="启用虚拟摄像头注入" />
+
+                <TextView
+                    android:id="@+id/tv_video"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:ellipsize="middle"
+                    android:singleLine="true"
+                    android:text="未选择视频"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/btn_pick_video"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="选择视频文件" />
+
+                <RadioGroup
+                    android:id="@+id/rg_source"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/rb_source_file"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="本地视频文件" />
+
+                    <RadioButton
+                        android:id="@+id/rb_source_remote"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="远程手机摄像头（双机模式）" />
+
+                    <RadioButton
+                        android:id="@+id/rb_source_network"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="网络直播流（RTSP / RTMP / HTTP）" />
+
+                    <RadioButton
+                        android:id="@+id/rb_source_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="本地照片（静帧画面）" />
+                </RadioGroup>
+
+                <RadioGroup
+                    android:id="@+id/rg_link_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <RadioButton
+                        android:id="@+id/rb_link_lan"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="局域网直连" />
+
+                    <RadioButton
+                        android:id="@+id/rb_link_relay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="服务器中转（远程 ID）" />
+                </RadioGroup>
+
+                <EditText
+                    android:id="@+id/et_relay_server"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="中转服务器地址，如 relay.example.com:17520"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+                <EditText
+                    android:id="@+id/et_remote_addr"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="远程手机地址，如 192.168.1.23:17521"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/et_remote_token"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:hint="配对码（远程 App 上显示的 6 位数字）"
+                    android:inputType="number"
+                    android:maxLength="6"
+                    android:maxLines="1"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:text="远程模式：另一台手机（无需 Root）安装「阿伟远程摄像头」，打开共享服务。\n· 局域网直连：填远程手机显示的地址和配对码（两台手机需在同一 WiFi）\n· 服务器中转：远程手机开启「服务器中转」得到一个远程 ID，这里填 ID+配对码即可跨网络调用（流量/不同 WiFi 均可，需中转服务器地址）\n网络流模式：家庭摄像头/推流地址直接填 rtsp:// 或 rtmp:// 或 http:// 开头的完整地址（同局域网或公网可达均可），无需配对码。" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/sw_mirror"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="画面镜像（前置摄像头使用时开启）" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:text="视频画面左右翻转，用于目标 App 调用前置摄像头时保持自然。切换后重启目标 App 生效。" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="4dp"
+                    android:text="工作原理：\n· 目标 App 打开相机时，预览画面替换为视频源画面（本地视频实时播放 / 本地照片静帧 / 远程手机实时画面 / 网络直播流）\n· 拍照返回视频源当前帧的 JPEG\n· 支持 Camera1/Camera2/CameraX\n\n生效条件：\n1. LSPosed 中启用本模块并勾选目标 App\n2. 本地源（视频/照片）：选择文件后强制重启目标 App；远程源：远程 App 服务已开启且授权同意；网络源：流地址可正常访问" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</ScrollView>
