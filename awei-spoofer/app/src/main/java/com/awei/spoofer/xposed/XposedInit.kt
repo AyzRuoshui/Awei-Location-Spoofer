@@ -112,6 +112,18 @@ class XposedInit : IXposedHookLoadPackage {
                         val app = param.thisObject as Application
                         if (app.packageName != lpp.packageName) return
                         val ctx = param.args[0] as Context
+                        // 1.1.32：子进程准确进程名识别（如 com.tencent.mm:appbrand0）
+                        try {
+                            val curProc = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                                Application.getProcessName()
+                            } else {
+                                java.io.File("/proc/self/cmdline").readText().trim().trimEnd(0.toChar())
+                            }
+                            if (!curProc.isNullOrBlank()) {
+                                XLog.processName = curProc
+                            }
+                        } catch (t: Throwable) {
+                        }
                         XLog.attach(ctx)
                         XLog.i("目标进程 Application attach，开始加载配置")
                         reportStatus(ctx)

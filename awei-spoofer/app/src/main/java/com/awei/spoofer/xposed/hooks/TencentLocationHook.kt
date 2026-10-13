@@ -79,7 +79,9 @@ object TencentLocationHook {
             try {
                 XposedBridge.hookAllMethods(managerClass, name, object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
-                        if (!HookState.deliverable()) return
+                        // 1.1.32：移除 !HookState.deliverable() 门禁——用户先开小程序再开启伪装时，
+                        // listener 若未被包装则永远进不了 pumps，伪装开启后自驱泵空转；
+                        // wrapListener 内部已有未激活透传逻辑，此处无条件包壳
                         val args = param.args ?: return
                         for (i in args.indices) {
                             val arg = args[i] ?: continue
@@ -223,6 +225,7 @@ object TencentLocationHook {
         rt == java.lang.Long.TYPE || rt == java.lang.Long::class.java -> 0L
         rt == java.lang.Float.TYPE || rt == java.lang.Float::class.java -> 0f
         rt == java.lang.Double.TYPE || rt == java.lang.Double::class.java -> 0.0
+        rt == android.os.Bundle::class.java -> android.os.Bundle()
         else -> null
     }
 
@@ -278,6 +281,35 @@ object TencentLocationHook {
                     }
                 }
                 "getTime" -> System.currentTimeMillis()
+                // 1.1.32：开机相对时间戳（毫秒/纳秒）。微信 AppBrandLocationManager 收到回调时
+                // 会对比 elapsedRealtime 判断是否为过期/重复帧。旧实现未拦截，original==null 时
+                // 恒返回 0L，有 original 时返回旧的固定时间戳不递增，微信静默判定为旧帧全量 drop
+                //（导致小程序常驻"正在确认定位，请稍候"，跑步里程不走，暂停再开始闪现跃迁的致命根因）
+                "getElapsedRealtime", "getElapsedRealTime", "getElapsedRealtimeMillis" ->
+                    android.os.SystemClock.elapsedRealtime()
+                "getElapsedRealtimeNanos" ->
+                    android.os.SystemClock.elapsedRealtimeNanos()
+                // 腾讯 SDK 专属 isMockGps 返回 int (0=非mock, 1=mock)，isMock 返回 boolean/int
+                "isMockGps" -> 0
+                "isMock" -> if (method.returnType == java.lang.Boolean.TYPE || method.returnType == java.lang.Boolean::class.java) false else 0
+                // 额外信息与卫星数：微信读取 Extra 中的卫星数判定搜星状态，补齐防止 NPE 或搜星数不足
+                "getExtra", "getExtras" -> {
+                    val bundle = if (original != null) {
+                        try {
+                            (method.invoke(original, *(args ?: arrayOfNulls(0))) as? android.os.Bundle)?.let {
+                                android.os.Bundle(it)
+                            }
+                        } catch (t: Throwable) {
+                            null
+                        }
+                    } else null
+                    (bundle ?: android.os.Bundle()).apply {
+                        putInt("satellites", 10)
+                        putInt("satellitesvalue", 10)
+                    }
+                }
+                "getGPSRssi", "getGpsRssi" -> 3
+                "getSourceProvider" -> if (method.returnType == String::class.java) "gps" else 1
                 "getCoordinateType" -> coordType
                 "hashCode" -> System.identityHashCode(original)
                 "equals" -> (args?.getOrNull(0) as Any?) === original
