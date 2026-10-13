@@ -22,14 +22,14 @@ import kotlin.math.sin
 /**
  * 传感器一致性伪装（手法参考 zhufucdev MotionEmulatorSdk SensorHooker）：
  *
- * 真实设备静止在家而伪造位置在"跑步/骑行/开车"——加速计/陀螺仪/计步与位置叙事矛盾即穿帮。
- * 1.1.34 升级（优化运动传感器高精度步频拟合与 Gait 步态模型）：
- * - 双通道保障：硬件事件到达时进行原地数组覆写（零反射、零 GC 抖动、绕过 Android 9+ 私有构造限制）；
- * - 40Hz 自驱动时钟：手机真实静止在桌上（HAL 睡眠/事件停发）时，由后台 HandlerThread 主动向 listener
- *   以 40Hz 节拍投递仿真步态，确保各类步态分析引擎持续输出平滑步数与合理步态特征；
- * - 动态步幅与步频：对齐真实人体运动生物力学（11km/h 对应 ~170 SPM，步长 ~1.08m），步间距 ~350ms，
- *   防止步频异常触发应用层滤波拒收；
- * - 真实手持姿态与物理一致性：Y=8.5、Z=4.9 合成微倾手持重力矢量，严格保证 accel == gravity + linearAccel。
+ * 真实设备静止不动而伪造位置在"跑步/骑行/开车"——加速计/陀螺仪/计步与位置叙事矛盾即穿帮。
+ * 双通道保障：硬件事件到达时进行原地数组覆写（零反射、零 GC 抖动、绕过 Android 9+ 私有构造限制）；
+ * 40Hz 自驱动时钟：手机真静止在桌上（HAL 睡眠/事件停发）时，由后台 HandlerThread 主动向 listener
+ *   以 40Hz 节拍投递仿真步态，确保下游计步器持续输出合理步数与运动步态；
+ * 动态步幅与步频：对齐真实跑步生物力学（11km/h 对应 ~170 SPM，步长 ~1.08m），步间距 ~350ms
+ *   稳定越过常见计步器的不应期门限；
+ * 真实手持姿态与物理一致性：Y=8.5、Z=4.9 合成微倾手持重力矢量，严格保证 accel == gravity + linearAccel。
+ * 1.1.35：hold（暂停/待命）期整组冻结——见 advance() 与 motionValues()。
  */
 object SensorHook {
 
@@ -282,6 +282,9 @@ object SensorHook {
      * 推进运动状态（dt 积分）：
      * dt 按真实毫秒计算，放宽下限至 1ms（杜绝旧实现强制 >=20ms 导致多传感器并发时步频 300% 虚高暴涨）；
      * 跑步模式下根据速度自适应拟合人体生物步频 (165~176 SPM) 与步幅 (0.90~1.30m)。
+     * 1.1.35：hold（暂停/待命）期不积分——位置冻结时里程/相位/速度必须同步冻结，
+     * 否则"GPS 不动 + 步数照涨 + 加速度计 165SPM 踏步"的矛盾态会被下游计步类
+     * App 的步数/里程交叉校验直接判为伪造。
      */
     private fun advance(fp: HookState.FakePos): Motion {
         val now = System.currentTimeMillis()
@@ -296,10 +299,19 @@ object SensorHook {
             val dt = if (lastTsMs == 0L) 0.02 else ((now - lastTsMs).coerceIn(1, 1000)) / 1000.0
             val speed = fp.speedMps
             val bearing = fp.bearing
-            val accel = (speed - lastSpeedMps) / dt
-            val dYaw = normalizeDeg(bearing - lastBearingDeg)
-            val yawRate = (dYaw / dt) / (180.0 / PI)
-            traveledM += speed * dt
+            val holding = HookState.isHolding()
+            // 进入 hold 的第一帧 lastSpeedMps 仍是跑步配速，(0-8)/dt 会算出大负尖峰
+            // 写进加速度计——真人停下是 1-2 秒渐止，不是瞬时 -400m/s²。hold 期与
+            // 恢复后首帧都钳到 ±2 m/s²（真人加速/减速峰值的物理上限）
+            val rawAccel = if (holding) 0.0 else (speed - lastSpeedMps) / dt
+            val accel = rawAccel.coerceIn(-2.0, 2.0)
+            val dYaw = if (holding) 0.0 else normalizeDeg(bearing - lastBearingDeg)
+            val yawRate = ((dYaw / dt) / (180.0 / PI)).coerceIn(-2.0, 2.0)
+            // hold 期里程/相位不推进：步数冻结、步态正弦停振（amp 已由速度=0 归零，
+            // 此处 traveledM 不增保证恢复起跑时相位无缝续接，不补跳变）
+            if (!holding) {
+                traveledM += speed * dt
+            }
             lastSpeedMps = speed
             lastBearingDeg = bearing
             lastTsMs = now
@@ -329,22 +341,28 @@ object SensorHook {
         val realValues = event?.values
         val m = advance(fp)
         // 振幅：静止=0；跑步时 (speed >= 2.0) amp 提升到 1.15 ~ 1.35 m/s²，
-        // 确保加速度 RMS 稳定在 0.80 ~ 0.95 m/s²（显著高于常见计步器 runMinRms = 0.40 门限）
+        // 使动态 RMS 稳定在 0.80 ~ 0.95 m/s²，稳定越过计步类 App 的运动门限
         val amp = when {
             fp.speedMps < 0.5 -> 0.0
             fp.speedMps < 2.0 -> (0.35 * fp.speedMps).coerceAtMost(0.7)
             else -> (1.0 + 0.08 * (fp.speedMps * 3.6 - 7.0)).coerceIn(1.15, 1.35)
         }
-        val gaitV = amp * sin(2.0 * PI * m.stepPhase)  // 竖直，步频
-        val gaitH = 0.35 * amp * sin(PI * m.stepPhase) // 横向，半频
+        // 1.1.35：hold（暂停/待命）期强制停振——速度归零后 amp 本应为 0，但此处
+        // 双保险：即使速度门限判断有漏（如 jitter 残值），hold 期也不得有任何步态波形。
+        // 静止时输出"手机被手持站立"的自然微噪声（±0.05），非完美 0.00 恒值——
+        // 恒定无噪声的加速度计本身是模拟器特征
+        val effAmp = if (HookState.isHolding()) 0.0 else amp
+        val gaitV = effAmp * sin(2.0 * PI * m.stepPhase)  // 竖直，步频
+        val gaitH = 0.35 * effAmp * sin(PI * m.stepPhase) // 横向，半频
+        val holdNoise = if (HookState.isHolding()) 0.05 else 0.15
         fun n(sigma: Double): Float = ((Math.random() * 2 - 1) * sigma).toFloat()
         val full: FloatArray = when (type) {
             T_ACCELEROMETER -> {
                 // 真实手持跑步姿态：手机微倾，主要重力分布在 +Y 轴（约 8.5）与 +Z 轴（约 4.9），合力 ≈ 9.81 m/s²
                 floatArrayOf(
-                    (0.2 * m.accel + gaitH).toFloat() + n(0.15),
-                    (8.5 + gaitV).toFloat() + n(0.25),
-                    (4.9 + 0.3 * gaitV).toFloat() + n(0.15)
+                    (0.2 * m.accel + gaitH).toFloat() + n(holdNoise),
+                    (8.5 + gaitV).toFloat() + n(holdNoise * 1.7),
+                    (4.9 + 0.3 * gaitV).toFloat() + n(holdNoise)
                 )
             }
             T_MAGNETIC_FIELD -> {
@@ -358,9 +376,9 @@ object SensorHook {
                 )
             }
             T_LINEAR_ACCELERATION -> floatArrayOf(
-                (0.2 * m.accel + gaitH).toFloat() + n(0.10),
-                gaitV.toFloat() + n(0.20),
-                (0.3 * gaitV).toFloat() + n(0.10)
+                (0.2 * m.accel + gaitH).toFloat() + n(holdNoise * 0.7),
+                gaitV.toFloat() + n(holdNoise * 1.3),
+                (0.3 * gaitV).toFloat() + n(holdNoise * 0.7)
             )
             T_GRAVITY -> floatArrayOf(0f, 8.5f, 4.9f)
             T_GYROSCOPE -> floatArrayOf(
@@ -370,7 +388,7 @@ object SensorHook {
             T_ROTATION_VECTOR -> {
                 val half = Math.toRadians(fp.bearing) / 2.0
                 floatArrayOf(
-                    (0.015 * amp * sin(PI * m.stepPhase)).toFloat(),
+                    (0.015 * effAmp * sin(PI * m.stepPhase)).toFloat(),
                     sin(half).toFloat(), 0f, cos(half).toFloat()
                 )
             }
@@ -445,6 +463,11 @@ object SensorHook {
                         val totalSteps = m.stepPhase.toInt()
                         val counterValue: Int
                         val emitDetector: Boolean
+                        // 1.1.35：hold（暂停/待命）期步数冻结——advance 已不推进里程，
+                        // totalSteps 自然不变；此处显式拦 STEP_DETECTOR 防边界抖动
+                        //（相位截断的小数残留），counter 保持最后值继续上报（真机
+                        // 静止时 STEP_COUNTER 也是恒值重复投递，这是正常形态）
+                        val holding = HookState.isHolding()
                         synchronized(stateLock) {
                             if (lastStepCount < 0) {
                                 lastStepCount = (HookState.sessionSeed() and 0x7FFF).toInt() % 3000 + 200
@@ -453,7 +476,7 @@ object SensorHook {
                             if (raw < lastEmittedSteps) lastStepCount += (lastEmittedSteps - raw)
                             counterValue = lastStepCount + totalSteps
                             lastEmittedSteps = counterValue
-                            emitDetector = totalSteps > stepsEmitted
+                            emitDetector = !holding && totalSteps > stepsEmitted
                             if (emitDetector) stepsEmitted = totalSteps
                         }
                         if (!stepLogged) {

@@ -178,6 +178,17 @@ object TrackMath {
         if (elapsedSec <= 0.0) 0.0 else baseMps * speedFactor(elapsedSec, phaseSec, variable)
 
     /**
+     * 指定时刻速度（m/s），hold 感知版（1.1.35）：holdAtMs>0（暂停/待命）恒 0。
+     * 旧链路 hold 只冻结 elapsed，speedAt(冻结值) 仍返回暂停瞬间的谐波速度——
+     * "GPS 原地不动 + speed 字段跑步配速 + 步数持续累计"同时存在数分钟，
+     * 会被下游计步类 App 的步数/里程交叉校验直接判为伪造。
+     * 两引擎必须共用本函数（与 elapsedMs 同源，"任意进程任意时刻结果一致"硬约束）。
+     */
+    fun speedNow(baseMps: Double, variable: Boolean, elapsedSec: Double, phaseSec: Double,
+                 holdAtMs: Long): Double =
+        if (holdAtMs > 0L) 0.0 else speedAt(baseMps, variable, elapsedSec, phaseSec)
+
+    /**
      * 有效行进时长（ms，1.1.14 hold 语义）：holdAtMs>0 表示暂停/待命中——时长冻结在
      * (holdAtMs-startAt-accum)；否则 now-startAt-accum。**两引擎必须用同一公式**
      *（TrackEngine.emit 与 HookState.current），否则暂停时一个在走一个站着。

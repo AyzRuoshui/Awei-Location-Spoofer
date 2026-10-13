@@ -117,7 +117,9 @@ object HookState {
                 val (dLat, dLng) = jitter.offsetMeters(6.0, p.first)
                 pos = toWgs(
                     c, p.first + dLat, p.second + dLng, p.third,
-                    jitter.jitterSpeed(TrackMath.speedAt(baseMps, c.variable, tSec, phase)),
+                    // 1.1.35：hold 期速度归零（speedNow）——此前 speedAt(冻结 elapsed) 在
+                    // 暂停时仍返回跑步配速，GPS 不动 + speed=9km/h 的矛盾直接进黑榜
+                    jitter.jitterSpeed(TrackMath.speedNow(baseMps, c.variable, tSec, phase, c.holdAtMs)),
                     altitude
                 )
             }
@@ -156,6 +158,13 @@ object HookState {
      * （结构身份逐秒变反而是指纹）。未配置时返 0。
      */
     fun sessionSeed(): Long = cfg?.startAt ?: 0L
+
+    /**
+     * 暂停/待命中（holdAtMs>0）（1.1.35）：SensorHook 等状态型合成器据此停发运动
+     * 波形、冻结步数——hold 期位置冻结但加速度计仍踏步、步数照涨，与冻结的 GPS
+     * 位移构成矛盾叙事。纯读取 cfg 快照，任意线程安全。
+     */
+    fun isHolding(): Boolean = cfg?.holdAtMs?.let { it > 0L } ?: false
 
     /** 配置里的坐标是"视觉坐标"（高德源=GCJ-02），输出给 App 前统一反算 WGS-84 */
     private fun toWgs(c: HookConfigStore.HookCfg, lat: Double, lng: Double,

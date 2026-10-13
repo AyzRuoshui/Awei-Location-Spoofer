@@ -177,7 +177,10 @@ class TrackEngine(private val context: Context) {
                 return
             }
             val pos = TrackMath.positionAt(route, dist, loop = effectiveLoop) ?: return
-            val speedMps = TrackMath.speedAt(baseMps, c.variableSpeed, elapsed, phase)
+            // 1.1.35：hold 期速度归零（speedNow，与 HookState.current 同源）——旧实现
+            // 暂停时注入的 GPS speed 字段仍是暂停瞬间的谐波速度，"位置原地不动 +
+            // speed 跑步配速"的矛盾态会被下游步数/里程交叉校验直接判为伪造
+            val speedMps = TrackMath.speedNow(baseMps, c.variableSpeed, elapsed, phase, Prefs.holdAtMs)
             emitRoute(pos, speedMps, acc, c.gcjSource, elapsed, phase)
         }
     }
