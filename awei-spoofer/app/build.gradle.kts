@@ -13,8 +13,8 @@ android {
         applicationId = "com.awei.spoofer"
         minSdk = 21
         targetSdk = 35
-        versionCode = 77
-        versionName = "1.1.32"
+        versionCode = 79
+        versionName = "1.1.34"
     }
 
     val ksPropsFile = rootProject.file("keystore.properties")
